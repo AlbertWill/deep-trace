@@ -1,6 +1,17 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
-const messages = {
+export type Locale = "en" | "zh";
+
+const STORAGE_KEY = "vibe-trading-locale";
+
+function detectLocale(): Locale {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === "en" || stored === "zh") return stored;
+  if ((navigator.language || "").startsWith("zh")) return "zh";
+  return "en";
+}
+
+const en = {
   home: "Home", agent: "Agent", runs: "Runs", settings: "Settings", alphaZoo: "Alpha Zoo",
   settingsDesc: "Configure model credentials and market data source tokens for this local project.",
   localApiAccess: "Local API access",
@@ -90,7 +101,7 @@ const messages = {
   equityDrawdown: "Equity & Drawdown",
   noPriceData: "No price data", noEquityData: "No equity data",
   filterLogs: "Filter logs...",
-  confirmDelete: "Confirm", cancelDelete: "Cancel",
+  confirmDelete: "Confirm Delete", cancelDelete: "Cancel",
   reconnectingN: "Connection lost, reconnecting (attempt {n})…",
   disconnected: "Connection lost",
   sessionCreated: "Session started",
@@ -165,13 +176,196 @@ const messages = {
   noCorrelationData: "No correlation data available",
 } as const;
 
-type Messages = typeof messages;
+const zh = {
+  home: "首页", agent: "研究", runs: "回测", settings: "设置", alphaZoo: "Alpha 因子库",
+  settingsDesc: "配置模型凭证和市场数据源 Token，仅对本项目生效。",
+  localApiAccess: "本地 API 访问",
+  localApiAccessDesc: "远程或私有 Web UI 部署时，在此浏览器中输入服务端 API Key。本地使用可留空。",
+  localApiKey: "服务端 API Key",
+  localApiKeyHint: "仅保存在当前浏览器。留空即可清除。",
+  localApiKeySaved: "本地 API Key 已保存",
+  localApiKeySave: "保存 Key",
+  settingsUnavailable: "设置不可用",
+  llmSettings: "LLM 设置",
+  llmSettingsDesc: "选择 Agent 使用的模型，并保存到项目本地 agent/.env 文件。",
+  llmConnection: "连接",
+  llmGeneration: "生成",
+  llmProvider: "提供商",
+  llmModelName: "模型",
+  llmBaseUrl: "接口地址",
+  llmApiKey: "API Key",
+  llmApiKeyConfigured: "已配置",
+  llmApiKeyPlaceholder: "留空保持当前 Key 不变",
+  llmClearApiKey: "清除已保存的 API Key",
+  llmNoApiKeyRequired: "该提供商不需要 API Key。",
+  llmOauthRequired: "该提供商使用 OAuth 登录。请运行：{command}",
+  llmTemperature: "温度",
+  llmTimeoutSeconds: "超时秒数",
+  llmMaxRetries: "最大重试",
+  llmReasoningEffort: "推理强度",
+  llmReasoningOff: "关闭",
+  llmSaveSettings: "保存设置",
+  llmSaving: "保存中...",
+  llmSettingsSaved: "LLM 设置已保存",
+  llmSettingsLoadFailed: "加载 LLM 设置失败",
+  llmSettingsSaveFailed: "保存 LLM 设置失败",
+  llmEnvPath: "保存至",
+  llmProviderHint: "切换提供商会自动更新推荐的模型和接口地址。",
+  llmModelHint: "请使用提供商要求的确切模型 ID。",
+  llmUseProviderDefaults: "使用提供商默认值",
+  dataSourceSettings: "数据源设置",
+  dataSourceSettingsDesc: "配置可选的市场数据凭证，用于回测和研究 Agent。",
+  tushareToken: "Tushare Token",
+  tushareTokenConfigured: "已配置",
+  tushareTokenPlaceholder: "留空保持当前 Token 不变",
+  tushareTokenHint: "用于 A 股、期货、基金和宏观数据。未设置时将回退至 AKShare（如可用）。",
+  clearTushareToken: "清除已保存的 Tushare Token",
+  baostockStatus: "BaoStock",
+  baostockSupported: "加载器可用",
+  baostockNotSupported: "无项目加载器",
+  baostockPackageInstalled: "Python 包已安装",
+  baostockPackageMissing: "Python 包未安装",
+  saveDataSourceSettings: "保存数据源设置",
+  dataSourceSettingsSaved: "数据源设置已保存",
+  dataSourceSettingsLoadFailed: "加载数据源设置失败",
+  dataSourceSettingsSaveFailed: "保存数据源设置失败",
+  unknownError: "未知错误",
+  startResearch: "开始研究", describeStrategy: "描述一个交易策略即可开始。",
+  prompt: "例如：创建 000001.SZ 双均线交叉策略，回测 2024 年",
+  send: "发送", loading: "加载中...", noRuns: "暂无回测记录。前往「研究」创建。",
+  runHistory: "回测历史", status: "状态", elapsed: "耗时",
+  chart: "图表", trades: "成交", code: "代码", trace: "追踪",
+  noData: "暂无数据", noTrades: "暂无成交记录。", noCode: "暂无代码文件。",
+  noTrace: "暂无追踪数据。", priceAndTrades: "价格 & 成交", equityAndDrawdown: "净值 & 回撤",
+  examples: "试试这些：", bye: "再见",
+  heroTitle: "AI 驱动的量化策略研究",
+  heroDesc: "用自然语言描述交易策略，Agent 将自动生成代码、运行回测并优化——一切实时进行。",
+  feat1: "AI Agent", feat1d: "基于 ReAct 推理的自然语言策略生成",
+  feat2: "内置回测", feat2d: "三大数据源：A 股、港股/美股、加密货币",
+  feat3: "实时流式", feat3d: "实时观看 Agent 思考、调用工具和迭代",
+  feat4: "策略复盘", feat4d: "交易日志分析 + 影子账户——提取你的规则、回测并归因盈亏差异",
+  score: "评分", passed: "通过", failed: "未通过", findings: "发现", recommendations: "建议",
+  darkMode: "深色", lightMode: "浅色", language: "语言",
+  sessions: "会话", newChat: "新对话", deleteConfirm: "删除？",
+  noSessions: "暂无会话",
+  viewDetails: "查看详情",
+  fullReport: "完整报告 →",
+  strategyComparison: "策略对比",
+  baseline: "基准", compareTo: "对比", delta: "差值", metric: "指标",
+  selectRun: "-- 请选择 --",
+  selectTwoRuns: "选择两次回测以对比指标。",
+  online: "在线", offline: "离线",
+  checking: "检测中…", checkConnection: "检测连接",
+  appearance: "外观",
+  connection: "连接",
+  endpoints: "端点",
+  review: "审查",
+  noReview: "暂无审查数据。",
+  colTime: "时间", colCode: "代码", colSide: "方向",
+  colPrice: "价格", colQty: "数量", colReason: "原因",
+  equityDrawdown: "净值 & 回撤",
+  noPriceData: "无价格数据", noEquityData: "无净值数据",
+  filterLogs: "筛选日志...",
+  confirmDelete: "确认删除", cancelDelete: "取消",
+  reconnectingN: "连接断开，正在重连（第 {n} 次）…",
+  disconnected: "连接已断开",
+  sessionCreated: "会话已创建",
+  sendFailed: "发送失败，请重试。",
+  reconnecting: "连接断开，正在重连…",
+  connected: "连接已恢复",
+  toolLoadSkill: "加载策略知识",
+  toolWriteFile: "生成代码",
+  toolEditFile: "编辑代码",
+  toolReadFile: "读取文件",
+  toolRunBacktest: "运行回测",
+  toolBash: "执行命令",
+  toolReadUrl: "读取网页",
+  toolReadDocument: "读取文档",
+  toolCompact: "压缩上下文",
+  toolCreateTask: "创建任务",
+  toolUpdateTask: "更新任务",
+  toolSpawnSubagent: "派生子 Agent",
+  toolProcessing: "处理中",
+  toolRunning: "运行中",
+  thinkingRunning: "正在运行 {tool}...",
+  thinkingDone: "完成 · {count} 步",
+  metricTotalReturn: "总收益率",
+  metricAnnualReturn: "年化",
+  metricSharpe: "Sharpe",
+  metricMaxDrawdown: "最大回撤",
+  metricWinRate: "胜率",
+  metricTradeCount: "交易次数",
+  metricFinalValue: "最终净值",
+  metricCalmar: "Calmar",
+  metricSortino: "Sortino",
+  metricProfitLossRatio: "盈亏比",
+  metricMaxConsecutiveLoss: "最大连亏",
+  metricAvgHoldingDays: "平均持仓天数",
+  metricBenchmarkReturn: "基准收益",
+  metricExcessReturn: "超额收益",
+  metricIR: "信息比率",
+  validation: "验证",
+  overlayMA: "均线",
+  overlayChannel: "通道",
+  overlayIndicators: "指标",
+  overlayClearAll: "裸 K（清除全部）",
+  rename: "重命名",
+  goBack: "返回",
+  noChartData: "暂无图表数据",
+  noChartDataHint: "回测引擎可能未生成价格数据，请检查 artifacts/ 目录。",
+  executionFailed: "执行失败",
+  executionTimeout: "执行超时，已自动停止",
+  cancelSent: "取消请求已发送",
+  cancelFailed: "取消失败",
+  exportChat: "导出对话",
+  stopGeneration: "停止生成",
+  newMessages: "新消息",
+  stepN: "第 {n} 步",
+  exportTitle: "# 对话导出",
+  exportTime: "导出时间",
+  exportUser: "## 用户",
+  exportAssistant: "## 助手",
+  exportError: "## 错误",
+  exportToolCall: "> 工具调用",
+  exportRunComplete: "> 回测完成",
+  downloadTradesCsv: "下载成交 CSV",
+  downloadMetricsCsv: "下载指标 CSV",
+  example1: "000001.SZ 双均线交叉（5/20 日），回测 2024 年",
+  example2: "构建 000001.SZ 双均线交叉策略，回测 2024 年",
+  example3: "600519.SH 布林带均值回归，回测近 3 年",
+  correlation: "相关性矩阵",
+  selectAssets: "资产代码",
+  windowLabel: "窗口（天）",
+  computeBtn: "计算",
+  methodLabel: "方法",
+  noCorrelationData: "暂无相关性数据",
+} as const;
 
-const I18nCtx = createContext<{ t: Messages }>({ t: messages });
+type Messages = { [K in keyof typeof en]: string };
+
+const locales: Record<Locale, Messages> = { en, zh };
+
+const I18nCtx = createContext<{
+  t: Messages;
+  locale: Locale;
+  setLocale: (l: Locale) => void;
+}>({ t: locales.en, locale: "en", setLocale: () => {} });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>(detectLocale);
+
+  const setLocale = useCallback((l: Locale) => {
+    setLocaleState(l);
+    localStorage.setItem(STORAGE_KEY, l);
+    document.documentElement.lang = l;
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   return (
-    <I18nCtx.Provider value={{ t: messages }}>
+    <I18nCtx.Provider value={{ t: locales[locale], locale, setLocale }}>
       {children}
     </I18nCtx.Provider>
   );

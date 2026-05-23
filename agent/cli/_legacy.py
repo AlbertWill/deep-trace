@@ -4,7 +4,7 @@
 Usage:
     vibe-trading                           Interactive mode (default)
     vibe-trading -p "Backtest AAPL MACD"   Single run
-    vibe-trading serve --port 8899         Start API server
+    vibe-trading serve --port 8888         Start API server
     vibe-trading chat                      Interactive mode
     vibe-trading list                      List runs
     vibe-trading show <run_id>             Show run details
@@ -189,11 +189,120 @@ def _read_input(prompt_session: Any, prompt_str: str = "> ") -> str:
     return Prompt.ask(f"[bold]{prompt_str}[/bold]")
 
 
-def serve_main(argv: list[str] | None = None) -> int:
-    """Delegate server startup to api_server."""
-    from api_server import serve_main as api_serve_main
+_SERVER_STATE_FILE = Path.home() / ".vibe-trading" / "server.json"
 
-    return api_serve_main(argv)
+
+def _write_server_state(pid: int, port: int, host: str) -> None:
+    _SERVER_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    _SERVER_STATE_FILE.write_text(json.dumps({"pid": pid, "port": port, "host": host}), encoding="utf-8")
+
+
+def _read_server_state() -> dict | None:
+    if not _SERVER_STATE_FILE.exists():
+        return None
+    try:
+        return json.loads(_SERVER_STATE_FILE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def _clear_server_state() -> None:
+    try:
+        _SERVER_STATE_FILE.unlink()
+    except OSError:
+        pass
+
+
+def _find_server_pid(port: int) -> Optional[int]:
+    """Find the PID of the process listening on the given port."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["lsof", "-t", "-i", f":{port}", "-sTCP:LISTEN"],
+            capture_output=True, text=True, timeout=5,
+        )
+        pids = result.stdout.strip().split("\n")
+        for pid_str in pids:
+            pid_str = pid_str.strip()
+            if pid_str.isdigit():
+                return int(pid_str)
+    except Exception:
+        pass
+    return None
+
+
+def cmd_stop(argv: list[str] | None = None) -> int:
+    """Stop a running API server."""
+    import signal as _signal
+
+    state = _read_server_state()
+    port = (state.get("port") if state else None) or 8888
+
+    pid = _find_server_pid(port)
+    if pid is None:
+        console.print(f"[yellow]No server listening on port {port}[/yellow]")
+        _clear_server_state()
+        return 0
+
+    try:
+        os.kill(pid, _signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    except PermissionError:
+        console.print(f"[red]Permission denied to kill PID {pid}[/red]. Try: [bold]sudo kill {pid}[/bold]")
+        return EXIT_RUN_FAILED
+
+    console.print(f"[green]Server stopped[/green] (PID {pid}, port {port})")
+    _clear_server_state()
+    return 0
+
+
+def cmd_restart(argv: list[str] | None = None) -> int:
+    """Restart the API server: stop the old one, then start a new one."""
+    import signal as _signal
+
+    state = _read_server_state()
+    port = (state.get("port") if state else None) or 8888
+    host = (state.get("host") if state else None) or "0.0.0.0"
+
+    # Stop existing server
+    pid = _find_server_pid(port)
+    if pid is not None:
+        try:
+            os.kill(pid, _signal.SIGTERM)
+        except (ProcessLookupError, PermissionError):
+            pass
+        console.print(f"[yellow]Stopped existing server[/yellow] (PID {pid})")
+        import time as _time
+        _time.sleep(1)
+
+    # Start new server
+    console.print(f"[cyan]Starting server on {host}:{port} ...[/cyan]")
+    from api_server import serve_main as api_serve_main
+    _write_server_state(os.getpid(), port, host)
+    try:
+        return api_serve_main(["--host", host, "--port", str(port)])
+    finally:
+        _clear_server_state()
+
+
+def serve_main(argv: list[str] | None = None) -> int:
+    """Delegate server startup to api_server and write server state file."""
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=8888)
+    try:
+        known, _ = parser.parse_known_args(argv)
+    except SystemExit:
+        known = argparse.Namespace(host="0.0.0.0", port=8888)
+    _write_server_state(os.getpid(), known.port, known.host)
+
+    from api_server import serve_main as api_serve_main
+    try:
+        return api_serve_main(argv)
+    finally:
+        _clear_server_state()
 
 
 def _strip_rich_tags(text: str) -> str:
@@ -2606,8 +2715,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
     serve_parser = subparsers.add_parser("serve", help="Start the API server")
     serve_parser.add_argument("--host", default="0.0.0.0", help="Bind address")
-    serve_parser.add_argument("--port", type=int, default=8000, help="Listen port")
+    serve_parser.add_argument("--port", type=int, default=8888, help="Listen port")
     serve_parser.add_argument("--dev", action="store_true", help="Start the Vite dev server")
+
+    stop_parser = subparsers.add_parser("stop", help="Stop the running API server")
+
+    restart_parser = subparsers.add_parser("restart", help="Restart the API server")
 
     provider_parser = subparsers.add_parser("provider", help="Manage OAuth providers")
     provider_subparsers = provider_parser.add_subparsers(dest="provider_command")
@@ -3123,6 +3236,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_init()
     if args.command == "serve":
         return serve_main(raw_argv[1:])
+    if args.command == "stop":
+        return cmd_stop()
+    if args.command == "restart":
+        return cmd_restart()
     if args.command == "provider":
         if args.provider_command == "login":
             return cmd_provider_login(args.provider)

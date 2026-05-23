@@ -1,6 +1,6 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useSearchParams } from "react-router-dom";
-import { BarChart3, Bot, Moon, Sun, Plus, Trash2, Pencil, MessageSquare, ChevronsLeft, ChevronsRight, Settings, Layers } from "lucide-react";
+import { BarChart3, Bot, Moon, Sun, Plus, Trash2, Pencil, MessageSquare, ChevronsLeft, ChevronsRight, Settings, Layers, Languages, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useDarkMode } from "@/hooks/useDarkMode";
@@ -10,6 +10,14 @@ import { ConnectionBanner } from "@/components/layout/ConnectionBanner";
 
 // Bump on each release; one place keeps the footer in sync with package.json.
 const APP_VERSION = "v0.1.8";
+
+// Inject popover animation keyframes once
+if (typeof document !== "undefined" && !document.getElementById("popover-keyframes")) {
+  const style = document.createElement("style");
+  style.id = "popover-keyframes";
+  style.textContent = `@keyframes popoverIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}`;
+  document.head.appendChild(style);
+}
 
 // NAV entries: `key` looks up label in i18n; `label` overrides (used for "Alpha Zoo").
 const NAV = [
@@ -23,8 +31,9 @@ const NAV = [
 export function Layout() {
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
-  const { t } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const { dark, toggle } = useDarkMode();
+  const toggleLocale = () => setLocale(locale === "zh" ? "en" : "zh");
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const sseStatus = useAgentStore(s => s.sseStatus);
@@ -49,9 +58,23 @@ export function Layout() {
   const isAgentPage = pathname.startsWith("/agent");
   useEffect(() => { loadSessions(); }, [isAgentPage, activeSessionId]);
 
+  const [menuTarget, setMenuTarget] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [renameTarget, setRenameTarget] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close popover on outside click
+  useEffect(() => {
+    if (menuTarget === null) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuTarget(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuTarget]);
 
   const deleteSession = async (sid: string) => {
     try {
@@ -140,6 +163,7 @@ export function Layout() {
                 const isActive = s.session_id === activeSessionId;
                 const isDeleting = deleteTarget === s.session_id;
                 const isRenaming = renameTarget === s.session_id;
+                const isMenuOpen = menuTarget === s.session_id;
                 return (
                   <div key={s.session_id} className="group relative flex items-center">
                     {isRenaming ? (
@@ -155,7 +179,7 @@ export function Layout() {
                       <Link
                         to={`/agent?session=${s.session_id}`}
                         className={cn(
-                          "flex-1 min-w-0 pl-3 pr-14 py-1.5 rounded-md text-xs transition-colors truncate block border-l-2",
+                          "flex-1 min-w-0 pl-3 pr-8 py-1.5 rounded-md text-xs transition-colors truncate block border-l-2",
                           isActive
                             ? "border-l-primary bg-primary/10 text-primary font-medium"
                             : "border-l-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -171,29 +195,53 @@ export function Layout() {
                         </span>
                       </Link>
                     )}
-                    {!isRenaming && isDeleting ? (
-                      <div className="absolute right-0.5 flex items-center gap-0.5">
-                        <button onClick={() => deleteSession(s.session_id)} className="p-1 text-danger hover:bg-danger/10 rounded text-[10px] font-medium">{t.confirmDelete}</button>
-                        <button onClick={() => setDeleteTarget(null)} className="p-1 text-muted-foreground hover:bg-muted rounded text-[10px]">{t.cancelDelete}</button>
+                    {isDeleting && (
+                      <div className="absolute inset-0 z-40 flex items-center justify-center rounded-md bg-background/80 backdrop-blur-[2px]">
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => setDeleteTarget(null)} className="px-2 py-0.5 rounded text-[10px] text-muted-foreground hover:bg-muted transition-colors">{t.cancelDelete}</button>
+                          <button onClick={() => deleteSession(s.session_id)} className="px-2 py-0.5 rounded text-[10px] font-medium text-white bg-danger hover:bg-danger/90 transition-colors">{t.confirmDelete}</button>
+                        </div>
                       </div>
-                    ) : !isRenaming ? (
-                      <div className="absolute right-1 opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity">
+                    )}
+                    {!isRenaming && !isDeleting && (
+                      <div className={cn(
+                        "absolute right-0 top-0 bottom-0 z-30 flex items-center rounded-md transition-opacity",
+                        isMenuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+                        "bg-muted",
+                        "hover:bg-muted/70"
+                      )} ref={isMenuOpen ? menuRef : undefined}>
+                        <div className="h-full flex items-center px-1.5">
                         <button
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRenameTarget(s.session_id); setRenameValue(s.title || ""); }}
-                          className="p-1 text-muted-foreground hover:text-foreground rounded"
-                          title="Rename"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuTarget(isMenuOpen ? null : s.session_id); setDeleteTarget(null); }}
+                          className={cn(
+                            "p-1.5 rounded-md transition-colors",
+                            isMenuOpen ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground"
+                          )}
+                          title="More"
                         >
-                          <Pencil className="h-3 w-3" />
+                          <MoreHorizontal className="h-4 w-4" />
                         </button>
-                        <button
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteTarget(s.session_id); }}
-                          className="p-1 text-muted-foreground hover:text-danger rounded"
-                          title={t.deleteConfirm}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
+                        </div>
+                        {isMenuOpen && (
+                          <div className="absolute right-0 top-full mt-1 z-50 min-w-[100px] rounded-md border bg-popover p-1 shadow-md" style={{ animation: "popoverIn 0.15s ease-out" }}>
+                            <button
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuTarget(null); setRenameTarget(s.session_id); setRenameValue(s.title || ""); }}
+                              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
+                            >
+                              <Pencil className="h-3 w-3" />
+                              {t.rename}
+                            </button>
+                            <button
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuTarget(null); setDeleteTarget(s.session_id); }}
+                              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-xs text-danger hover:bg-danger/10 transition-colors"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              {t.deleteConfirm}
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    ) : null}
+                    )}
                   </div>
                 );
               })}
@@ -208,6 +256,9 @@ export function Layout() {
         <div className={cn("border-t", collapsed ? "p-1 flex flex-col items-center gap-1" : "p-3 space-y-2")}>
           {collapsed ? (
             <>
+              <button onClick={toggleLocale} className="p-1.5 text-muted-foreground hover:text-foreground rounded transition-colors" title={locale === "zh" ? "English" : "中文"}>
+                <Languages className="h-3.5 w-3.5" />
+              </button>
               <button onClick={toggle} className="p-1.5 text-muted-foreground hover:text-foreground rounded transition-colors" title={dark ? t.lightMode : t.darkMode}>
                 {dark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
               </button>
@@ -218,13 +269,22 @@ export function Layout() {
           ) : (
             <>
               <div className="flex items-center justify-between">
-                <button
-                  onClick={toggle}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {dark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-                  {dark ? t.lightMode : t.darkMode}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={toggle}
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {dark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                    {dark ? t.lightMode : t.darkMode}
+                  </button>
+                  <button
+                    onClick={toggleLocale}
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Languages className="h-3.5 w-3.5" />
+                    {locale === "zh" ? "EN" : "中文"}
+                  </button>
+                </div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setCollapsed(true)}

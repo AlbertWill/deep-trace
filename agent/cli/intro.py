@@ -2,7 +2,7 @@
 
 The layout follows §3.3 of the 2026-05-19 UI/UX design proposal:
 
-    Vibe-Trading v0.2.0
+    Deep-Trace v0.2.0
     ─────────────────────────────────────────────
     Natural-language finance research that
     thinks before it answers.
@@ -20,7 +20,7 @@ The layout follows §3.3 of the 2026-05-19 UI/UX design proposal:
     /help for commands · Ctrl+C to clear input · Ctrl+D to exit
     ─────────────────────────────────────────────
 
-The wordmark "Vibe-Trading" is rendered in the brand orange (single accent),
+The wordmark "Deep-Trace" is rendered in the brand orange (single accent),
 everything else uses neutral / dim styles per the "Orange discipline rule".
 No emoji, no ASCII-art logo — wordmark-only (proposal §1.3).
 """
@@ -93,7 +93,7 @@ def print_banner(
     # ── Wordmark ────────────────────────────────────────────────────────
     wordmark = Text()
     wordmark.append(pad)
-    wordmark.append("Vibe-Trading", style=Theme.primary)
+    wordmark.append("Deep-Trace", style=Theme.primary)
     wordmark.append(f" v{version}", style=Theme.muted)
     console.print(wordmark)
 

@@ -1,4 +1,4 @@
-# Vibe-Trading 部署指南
+# Deep-Trace 部署指南
 
 ## 环境要求
 
@@ -14,8 +14,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/HKUDS/Vibe-Trading.git
-cd Vibe-Trading
+git clone https://github.com/AlbertWill/deep-trace
+cd deep-trace
 ```
 
 ### 2. 配置环境变量
@@ -50,22 +50,22 @@ pip install --upgrade pip
 pip install -e ".[dev]"
 
 # 启动 API 服务（默认端口：8888）
-vibe-trading serve --port 8888
+deep-trace serve --port 8888
 ```
 
 #### 停止后端服务
 
 ```bash
-vibe-trading stop
+deep-trace stop
 ```
 
 #### 重启后端服务
 
 ```bash
-vibe-trading restart
+deep-trace restart
 ```
 
-> `Ctrl+C` 可能无法干净退出（uvicorn 子进程会残留），建议使用 `vibe-trading stop` 命令。
+> `Ctrl+C` 可能无法干净退出（uvicorn 子进程会残留），建议使用 `deep-trace stop` 命令。
 
 <details>
 <summary>macOS 用户：llvmlite 编译失败的处理方式</summary>
@@ -105,7 +105,7 @@ cd frontend && npm ci && npm run dev
 
 ```bash
 source agent/.venv/bin/activate
-vibe-trading
+deep-trace
 ```
 
 ---
@@ -122,7 +122,7 @@ cp agent/.env.example agent/.env
 ### 2. 构建镜像
 
 ```bash
-docker build -t vibe-trading:latest .
+docker build -t deep-trace:latest .
 ```
 
 ### 3. 启动服务
@@ -167,12 +167,12 @@ docker compose --profile frontend up -d
 docker login --username=<阿里云账号> registry.<区域>.aliyuncs.com
 
 # 构建并打标签
-docker build -t registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:latest .
-docker tag registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:latest registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:v0.1.8
+docker build -t registry.<区域>.aliyuncs.com/<命名空间>/deep-trace:latest .
+docker tag registry.<区域>.aliyuncs.com/<命名空间>/deep-trace:latest registry.<区域>.aliyuncs.com/<命名空间>/deep-trace:v0.1.8
 
 # 推送
-docker push registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:latest
-docker push registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:v0.1.8
+docker push registry.<区域>.aliyuncs.com/<命名空间>/deep-trace:latest
+docker push registry.<区域>.aliyuncs.com/<命名空间>/deep-trace:v0.1.8
 ```
 
 常用区域地址：
@@ -190,17 +190,17 @@ docker push registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:v0.1.8
 
 ```yaml
 services:
-  vibe-trading:
-    image: registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:latest
+  deep-trace:
+    image: registry.<区域>.aliyuncs.com/<命名空间>/deep-trace:latest
     ports:
       - "8888:8888"    # 生产环境可改为 127.0.0.1:8888 配合 Nginx
     env_file:
       - agent/.env
     environment:
-      - VIBE_TRADING_TRUST_DOCKER_LOOPBACK=1
+      - DEEP_TRACE_TRUST_DOCKER_LOOPBACK=1
     volumes:
-      - vibe-runs:/app/agent/runs
-      - vibe-sessions:/app/agent/sessions
+      - deep-trace-runs:/app/agent/runs
+      - deep-trace-sessions:/app/agent/sessions
     restart: unless-stopped
 ```
 
@@ -219,8 +219,8 @@ docker compose up -d
 
 ```bash
 # 重新构建 → 推送 → 拉取 → 重启
-docker build -t registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:latest .
-docker push registry.<区域>.aliyuncs.com/<命名空间>/vibe-trading:latest
+docker build -t registry.<区域>.aliyuncs.com/<命名空间>/deep-trace:latest .
+docker push registry.<区域>.aliyuncs.com/<命名空间>/deep-trace:latest
 docker compose pull && docker compose up -d
 ```
 

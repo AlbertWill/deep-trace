@@ -219,8 +219,8 @@ def _build_keybindings(state: _CtrlCState) -> KeyBindings:
 
 
 def _default_history_path() -> Path:
-    """Where ``~/.vibe-trading/history`` lives by default."""
-    home = Path.home() / ".vibe-trading"
+    """Where ``~/.deep-trace/history`` lives by default."""
+    home = Path.home() / ".deep-trace"
     return home / "history"
 
 
@@ -229,12 +229,12 @@ def make_session(history_path: Optional[Path] = None) -> PromptSession:
 
     Args:
         history_path: Override for the persistent history file. ``None``
-            uses ``~/.vibe-trading/history``.
+            uses ``~/.deep-trace/history``.
 
     Returns:
         A ready-to-use ``PromptSession`` wired to the slash completer,
         Ctrl+C bindings, multi-line editing, and a surrogate-safe
-        history file. The session exposes ``vibe_ctrl_c_state`` on the
+        history file. The session exposes ``dt_ctrl_c_state`` on the
         returned object so callers can implement the two-press exit
         confirmation.
     """
@@ -262,7 +262,7 @@ def make_session(history_path: Optional[Path] = None) -> PromptSession:
         multiline=True,
     )
     # Expose the state so the outer loop can implement two-press exit.
-    setattr(session, "vibe_ctrl_c_state", ctrl_c_state)
+    setattr(session, "dt_ctrl_c_state", ctrl_c_state)
     return session
 
 
@@ -302,12 +302,12 @@ def ctrl_c_within_window(session: PromptSession, window_sec: float = _EXIT_HINT_
 
     * ``SimpleNamespace`` test doubles that set ``last_press_ts`` directly
       (legacy test fixtures predate the two-timestamp design).
-    * ``vibe_ctrl_c_state`` being absent entirely (defensive — returns
+    * ``dt_ctrl_c_state`` being absent entirely (defensive — returns
       ``False`` so the caller treats it as "no exit").
 
     Args:
         session: The active prompt_toolkit session (or a duck-typed
-            stand-in exposing ``vibe_ctrl_c_state``).
+            stand-in exposing ``dt_ctrl_c_state``).
         window_sec: Window length in seconds. Only used by the fallback
             paths described above; the primary path trusts the cached
             ``last_window_hit`` already computed against the configured
@@ -316,7 +316,7 @@ def ctrl_c_within_window(session: PromptSession, window_sec: float = _EXIT_HINT_
     Returns:
         ``True`` iff the loop should now exit.
     """
-    state = getattr(session, "vibe_ctrl_c_state", None)
+    state = getattr(session, "dt_ctrl_c_state", None)
     if state is None:
         return False
     # Primary path — the keybinding cached the press-time decision.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Vibe-Trading MCP Server — expose 22 finance research tools to any MCP client.
+"""Deep-Trace MCP Server — expose 22 finance research tools to any MCP client.
 
 Works with OpenClaw, Claude Desktop, Cursor, and any MCP-compatible client.
 Zero API key required for HK/US/crypto markets (yfinance, OKX, AKShare are free).
@@ -10,13 +10,13 @@ Usage:
 
 OpenClaw config (~/.openclaw/config.yaml):
     skills:
-      - name: vibe-trading
+      - name: deep-trace
         command: python /path/to/agent/mcp_server.py
 
 Claude Desktop config:
     {
       "mcpServers": {
-        "vibe-trading": {
+        "deep-trace": {
           "command": "python",
           "args": ["/path/to/agent/mcp_server.py"]
         }
@@ -42,7 +42,7 @@ if str(AGENT_DIR) not in sys.path:
 
 from fastmcp import Context, FastMCP
 
-mcp = FastMCP("Vibe-Trading")
+mcp = FastMCP("Deep-Trace")
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ _include_shell_tools = True
 
 def _env_shell_tools_enabled() -> bool:
     """Return whether shell tools were explicitly enabled for network MCP."""
-    return os.getenv("VIBE_TRADING_ENABLE_SHELL_TOOLS", "").strip().lower() in {"1", "true", "yes", "on"}
+    return os.getenv("DEEP_TRACE_ENABLE_SHELL_TOOLS", "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _get_skills_loader():
@@ -811,7 +811,7 @@ def extract_shadow_strategy(
 
     Run `analyze_trade_journal` first if the journal hasn't been parsed.
     Returns shadow_id + rules preview. Profile persists to
-    ~/.vibe-trading/shadow_accounts/.
+    ~/.deep-trace/shadow_accounts/.
 
     Args:
         journal_path: Path to the CSV/Excel broker export.
@@ -921,11 +921,11 @@ def scan_shadow_signals(
 
 
 def main():
-    """Entry point for `vibe-trading-mcp` CLI command."""
+    """Entry point for `deep-trace-mcp` CLI command."""
     global _include_shell_tools, _registry
     import argparse
 
-    parser = argparse.ArgumentParser(description="Vibe-Trading MCP Server")
+    parser = argparse.ArgumentParser(description="Deep-Trace MCP Server")
     parser.add_argument("--transport", choices=["stdio", "sse"], default="stdio", help="MCP transport (default: stdio)")
     parser.add_argument("--port", type=int, default=8900, help="SSE port (only used with --transport sse)")
     args = parser.parse_args()

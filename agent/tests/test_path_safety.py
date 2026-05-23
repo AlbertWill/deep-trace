@@ -51,7 +51,7 @@ class TestSafePath:
 
 class TestSafeUserPath:
     def test_configured_import_root_file_accepted(self, tmp_path: Path, monkeypatch):
-        monkeypatch.setenv("VIBE_TRADING_ALLOWED_FILE_ROOTS", str(tmp_path))
+        monkeypatch.setenv("DEEP_TRACE_ALLOWED_FILE_ROOTS", str(tmp_path))
         target = tmp_path / "broker.csv"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.touch()
@@ -62,12 +62,12 @@ class TestSafeUserPath:
     def test_tilde_expansion_works(self, tmp_path: Path, monkeypatch):
         monkeypatch.setenv("HOME", str(tmp_path))
         monkeypatch.setenv("USERPROFILE", str(tmp_path))
-        monkeypatch.setenv("VIBE_TRADING_ALLOWED_FILE_ROOTS", "~/.vibe-imports")
-        target = tmp_path / ".vibe-imports" / "journal.csv"
+        monkeypatch.setenv("DEEP_TRACE_ALLOWED_FILE_ROOTS", "~/.deep-trace-imports")
+        target = tmp_path / ".deep-trace-imports" / "journal.csv"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.touch()
 
-        result = safe_user_path("~/.vibe-imports/journal.csv")
+        result = safe_user_path("~/.deep-trace-imports/journal.csv")
         assert result == target.resolve()
 
     def test_default_cwd_uploads_file_accepted(self, tmp_path: Path, monkeypatch):
@@ -80,7 +80,7 @@ class TestSafeUserPath:
         assert result == target.resolve()
 
     def test_system_path_outside_import_roots_rejected(self, tmp_path: Path, monkeypatch):
-        monkeypatch.setenv("VIBE_TRADING_ALLOWED_FILE_ROOTS", str(tmp_path))
+        monkeypatch.setenv("DEEP_TRACE_ALLOWED_FILE_ROOTS", str(tmp_path))
         monkeypatch.chdir(tmp_path)
 
         with pytest.raises(ValueError, match="outside allowed user-file roots"):
@@ -89,7 +89,7 @@ class TestSafeUserPath:
     def test_parent_traversal_from_cwd_rejected(self, tmp_path: Path, monkeypatch):
         deep = tmp_path / "deep" / "cwd"
         deep.mkdir(parents=True)
-        monkeypatch.setenv("VIBE_TRADING_ALLOWED_FILE_ROOTS", str(deep))
+        monkeypatch.setenv("DEEP_TRACE_ALLOWED_FILE_ROOTS", str(deep))
         monkeypatch.chdir(deep)
 
         with pytest.raises(ValueError, match="outside allowed user-file roots"):
@@ -110,7 +110,7 @@ class TestSafeUserPath:
 
 class TestSafeRunDir:
     def test_configured_run_root_accepted(self, tmp_path: Path, monkeypatch):
-        monkeypatch.setenv("VIBE_TRADING_ALLOWED_RUN_ROOTS", str(tmp_path))
+        monkeypatch.setenv("DEEP_TRACE_ALLOWED_RUN_ROOTS", str(tmp_path))
         run_dir = tmp_path / "run_123"
         run_dir.mkdir()
 
@@ -119,7 +119,7 @@ class TestSafeRunDir:
         assert result == run_dir.resolve()
 
     def test_system_tmp_run_dir_rejected_by_default(self, tmp_path: Path, monkeypatch):
-        monkeypatch.delenv("VIBE_TRADING_ALLOWED_RUN_ROOTS", raising=False)
+        monkeypatch.delenv("DEEP_TRACE_ALLOWED_RUN_ROOTS", raising=False)
         run_dir = tmp_path / "attack_run"
         run_dir.mkdir()
 
@@ -127,7 +127,7 @@ class TestSafeRunDir:
             safe_run_dir(str(run_dir))
 
     def test_default_agent_runs_dir_accepted(self, tmp_path: Path, monkeypatch):
-        monkeypatch.delenv("VIBE_TRADING_ALLOWED_RUN_ROOTS", raising=False)
+        monkeypatch.delenv("DEEP_TRACE_ALLOWED_RUN_ROOTS", raising=False)
         agent_runs = Path(__file__).resolve().parents[1] / "runs" / "safe_run"
         agent_runs.mkdir(parents=True, exist_ok=True)
 

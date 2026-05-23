@@ -1,11 +1,11 @@
 ---
-name: vibe-trading
+name: deep-trace
 version: 0.1.8
 description: Professional finance research toolkit — backtesting (7 engines + benchmark comparison panel), factor analysis, Alpha Zoo (452 pre-built alphas across qlib158/alpha101/gtja191/academic), options pricing, 75 finance skills, 29 multi-agent swarm teams, Trade Journal analyzer, and Shadow Account (extract → backtest → render) across 6 data sources (tushare, yfinance, okx, akshare, ccxt, futu).
 dependencies:
   python: ">=3.11"
   pip:
-    - vibe-trading-ai
+    - deep-trace-ai
 env:
   - name: TUSHARE_TOKEN
     description: "Tushare API token for China A-share data (optional — HK/US/crypto work without any key)"
@@ -17,35 +17,35 @@ env:
     description: "LLM model name for run_swarm (e.g. deepseek/deepseek-v4-pro). Only needed if using run_swarm."
     required: false
 mcp:
-  command: vibe-trading-mcp
+  command: deep-trace-mcp
   args: []
 ---
 
-# Vibe-Trading
+# Deep-Trace
 
 Professional finance research toolkit with AI-powered backtesting (7 engines), multi-agent teams, 75 specialized skills, the **Alpha Zoo** (452 pre-built quantitative alphas across qlib158 / alpha101 / gtja191 / academic with one-line CLI benchmarking), and the Shadow Account loop — extract your implicit trading rules from a journal, backtest them across A股/港股/美股/crypto, then see where they would have served you better.
 
 ## Setup
 
 ```bash
-pip install vibe-trading-ai
+pip install deep-trace-ai
 ```
 
-> **Package name vs commands:** The PyPI package is `vibe-trading-ai`. Once installed, you get:
+> **Package name vs commands:** The PyPI package is `deep-trace-ai`. Once installed, you get:
 >
 > | Command | Purpose |
 > |---------|---------|
-> | `vibe-trading` | Interactive CLI / TUI |
-> | `vibe-trading serve` | Launch FastAPI web server |
-> | `vibe-trading-mcp` | Start MCP server (for Claude Desktop, OpenClaw, Cursor, etc.) |
+> | `deep-trace` | Interactive CLI / TUI |
+> | `deep-trace serve` | Launch FastAPI web server |
+> | `deep-trace-mcp` | Start MCP server (for Claude Desktop, OpenClaw, Cursor, etc.) |
 
 Add to your agent's MCP config:
 
 ```json
 {
   "mcpServers": {
-    "vibe-trading": {
-      "command": "vibe-trading-mcp"
+    "deep-trace": {
+      "command": "deep-trace-mcp"
     }
   }
 }
@@ -106,7 +106,7 @@ One-line cross-sectional IC / IR / alive-reversed-dead categorisation across fou
 - **gtja191** (191 alphas) — Guotai Junan 2014 "191 Short-period Trading Alpha Factors" research report.
 - **academic** (6 factors) — Fama-French 5 + Carhart momentum (honest price-based proxies).
 
-Each alpha ships with `__alpha_meta__` (formula LaTeX + theme + universe + warmup + columns required), guarded by an AST purity gate + 300-row lookahead sentinel test. Use the `vibe-trading alpha {list,show,bench,compare,export-manifest}` CLI, the `/alpha/*` REST routes (browser at `/alpha-zoo`), or compose multi-factor signals via `ZooSignalEngine.from_zoo(...)`.
+Each alpha ships with `__alpha_meta__` (formula LaTeX + theme + universe + warmup + columns required), guarded by an AST purity gate + 300-row lookahead sentinel test. Use the `deep-trace alpha {list,show,bench,compare,export-manifest}` CLI, the `/alpha/*` REST routes (browser at `/alpha-zoo`), or compose multi-factor signals via `ZooSignalEngine.from_zoo(...)`.
 
 ### Finance Skills (75)
 Comprehensive knowledge base covering:
@@ -153,20 +153,20 @@ Use `load_skill(name)` to access full methodology docs with code templates.
 ## Quick Start
 
 ```bash
-pip install vibe-trading-ai
+pip install deep-trace-ai
 ```
 
-That's it — no API keys needed for HK/US/crypto markets. Start using `backtest`, `get_market_data`, `analyze_options`, `analyze_trade_journal`, `extract_shadow_strategy`, `web_search`, the **Alpha Zoo** (`vibe-trading alpha bench --zoo gtja191 --universe csi300 --period 2018-2025`), and all 75 skills immediately.
+That's it — no API keys needed for HK/US/crypto markets. Start using `backtest`, `get_market_data`, `analyze_options`, `analyze_trade_journal`, `extract_shadow_strategy`, `web_search`, the **Alpha Zoo** (`deep-trace alpha bench --zoo gtja191 --universe csi300 --period 2018-2025`), and all 75 skills immediately.
 
 ## Loading Tools from External MCP Servers
 
 The built-in agent can load tools from your own external MCP servers in addition to its local toolset.
 
-> **Note:** This is the *MCP client* path — the opposite of the MCP plugin listed above. The plugin above makes Vibe-Trading's tools available to your agents. This section lets Vibe-Trading's own agent call tools from *your* servers.
+> **Note:** This is the *MCP client* path — the opposite of the MCP plugin listed above. The plugin above makes Deep-Trace's tools available to your agents. This section lets Deep-Trace's own agent call tools from *your* servers.
 
 ### Setup
 
-Create `~/.vibe-trading/agent.json`:
+Create `~/.deep-trace/agent.json`:
 
 ```json
 {
@@ -181,7 +181,7 @@ Create `~/.vibe-trading/agent.json`:
 }
 ```
 
-Remote tools appear automatically in every `vibe-trading run` / `vibe-trading chat` call. They are injected after local tools under stable names: `mcp_<server>_<tool>`.
+Remote tools appear automatically in every `deep-trace run` / `deep-trace chat` call. They are injected after local tools under stable names: `mcp_<server>_<tool>`.
 
 ### Config fields
 
@@ -224,7 +224,7 @@ With the opt-in active, pass `mcpServers` inside `session.config` to extend or r
 }
 ```
 
-Without `ALLOW_SESSION_MCP_SERVERS=1`, any `mcpServers` key in `session.config` is silently stripped before config loading. The global operator config on disk (`~/.vibe-trading/agent.json`) is always respected regardless of this flag.
+Without `ALLOW_SESSION_MCP_SERVERS=1`, any `mcpServers` key in `session.config` is silently stripped before config loading. The global operator config on disk (`~/.deep-trace/agent.json`) is always respected regardless of this flag.
 
 ### v1 limits
 

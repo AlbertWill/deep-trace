@@ -25,8 +25,8 @@ def _local_client() -> TestClient:
 def clear_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     """Start every auth test from dev-mode auth."""
     monkeypatch.delenv("API_AUTH_KEY", raising=False)
-    monkeypatch.delenv("VIBE_TRADING_TRUST_DOCKER_LOOPBACK", raising=False)
-    monkeypatch.delenv("VIBE_TRADING_ENABLE_SHELL_TOOLS", raising=False)
+    monkeypatch.delenv("DEEP_TRACE_TRUST_DOCKER_LOOPBACK", raising=False)
+    monkeypatch.delenv("DEEP_TRACE_ENABLE_SHELL_TOOLS", raising=False)
     monkeypatch.setattr(api_server, "_API_KEY", "")
 
 
@@ -55,7 +55,7 @@ def test_docker_gateway_dev_write_allowed_only_with_compose_trust_flag(
 
     assert not api_server._is_local_client(request)
 
-    monkeypatch.setenv("VIBE_TRADING_TRUST_DOCKER_LOOPBACK", "1")
+    monkeypatch.setenv("DEEP_TRACE_TRUST_DOCKER_LOOPBACK", "1")
 
     assert api_server._is_local_client(request)
 
@@ -64,7 +64,7 @@ def test_docker_network_peer_is_not_local_even_with_compose_trust_flag(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     request = SimpleNamespace(client=SimpleNamespace(host="172.18.0.42"))
-    monkeypatch.setenv("VIBE_TRADING_TRUST_DOCKER_LOOPBACK", "1")
+    monkeypatch.setenv("DEEP_TRACE_TRUST_DOCKER_LOOPBACK", "1")
     monkeypatch.setattr(
         api_server,
         "_default_gateway_ips",
@@ -142,7 +142,7 @@ def test_shell_tools_remote_api_request_accepts_explicit_opt_in(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     request = SimpleNamespace(client=SimpleNamespace(host="203.0.113.10"))
-    monkeypatch.setenv("VIBE_TRADING_ENABLE_SHELL_TOOLS", "1")
+    monkeypatch.setenv("DEEP_TRACE_ENABLE_SHELL_TOOLS", "1")
 
     assert api_server._shell_tools_enabled_for_request(request)
 

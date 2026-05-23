@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Vibe-Trading are documented in this file.
+All notable changes to Deep-Trace are documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
@@ -30,7 +30,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     *"191 Short-period Trading Alpha Factors"* research report.
   - **academic** (6 factors) — Fama-French 5 + Carhart momentum, shipped
     as honest price-based proxies (not the canonical FF series).
-- `vibe-trading alpha {list,show,bench,compare,export-manifest}` CLI
+- `deep-trace alpha {list,show,bench,compare,export-manifest}` CLI
   subcommand. `show` and `export-manifest` enforce path-traversal guards.
 - New agent tools: `AlphaZooTool` (browse) and `AlphaBenchTool`
   (orchestrator with Jinja2 autoescape + strict CSP HTML report).
@@ -38,7 +38,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   with cross-sectional standardisation, weighting, and optional top-N /
   bottom-N long-short conversion.
 - `wiki/scripts/build_alpha_library.py` — Alpha Library renderer.
-  Reads `manifest.json` produced by `vibe-trading alpha export-manifest`
+  Reads `manifest.json` produced by `deep-trace alpha export-manifest`
   and emits 452 per-alpha HTML pages plus 4 per-zoo overviews, each with
   `script-src 'none'` CSP. The landing page hydrates per-zoo counts
   from `content/index.json`.
@@ -117,6 +117,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Internal
 - `wiki/alpha-library/manifest.json` and `wiki/alpha-library/content/`
   are generated artifacts and gitignored. Run
-  `vibe-trading alpha export-manifest --out wiki/alpha-library/manifest.json
+  `deep-trace alpha export-manifest --out wiki/alpha-library/manifest.json
   --force` followed by `python wiki/scripts/build_alpha_library.py` to
   regenerate the static site.

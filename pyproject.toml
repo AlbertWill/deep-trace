@@ -1,5 +1,5 @@
 [project]
-name = "vibe-trading-ai"
+name = "deep-trace-ai"
 version = "0.1.8"
 description = "Natural-language finance research AI agent with backtesting"
 requires-python = ">=3.11"
@@ -65,8 +65,8 @@ Repository = "https://github.com/HKUDS/Vibe-Trading"
 Issues = "https://github.com/HKUDS/Vibe-Trading/issues"
 
 [project.scripts]
-vibe-trading = "cli:main"
-vibe-trading-mcp = "mcp_server:main"
+deep-trace = "cli:main"
+deep-trace-mcp = "mcp_server:main"
 
 [tool.setuptools]
 package-dir = {"" = "agent"}

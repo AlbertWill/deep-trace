@@ -59,7 +59,7 @@ def cmd_model(ctx: Any = None, *args: str) -> int:  # noqa: ARG001 — ctx unuse
     console.print()
     console.print(
         Text(
-            "Run `vibe-trading init` to switch provider, model, or credentials.",
+            "Run `deep-trace init` to switch provider, model, or credentials.",
             style="dim",
         )
     )
@@ -206,7 +206,7 @@ def cmd_debug(ctx: Any = None, *args: str) -> int:  # noqa: ARG001
             return 1
     return _coming_soon(
         "debug",
-        hint="set `VIBE_TRADING_DEBUG=1` and restart for verbose logging.",
+        hint="set `DEEP_TRACE_DEBUG=1` and restart for verbose logging.",
     )
 
 

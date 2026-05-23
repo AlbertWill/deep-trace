@@ -1,1 +1,1 @@
-"""Vibe-Trading core package."""
+"""Deep-Trace core package."""

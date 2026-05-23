@@ -104,7 +104,7 @@ export function Layout() {
         <div className={cn("border-b", collapsed ? "p-2 flex justify-center" : "p-4")}>
           <Link to="/" className={cn("flex items-center font-bold text-base tracking-tight", collapsed ? "justify-center" : "gap-2")}>
             <BarChart3 className="h-5 w-5 text-primary shrink-0" />
-            {!collapsed && "Vibe-Trading"}
+            {!collapsed && "Deep-Trace"}
           </Link>
         </div>
 
@@ -165,7 +165,7 @@ export function Layout() {
                 const isRenaming = renameTarget === s.session_id;
                 const isMenuOpen = menuTarget === s.session_id;
                 return (
-                  <div key={s.session_id} className="group relative flex items-center">
+                  <div key={s.session_id} className={cn("group relative flex items-center", isMenuOpen && "z-40")}>
                     {isRenaming ? (
                       <input
                         autoFocus
@@ -196,7 +196,7 @@ export function Layout() {
                       </Link>
                     )}
                     {isDeleting && (
-                      <div className="absolute inset-0 z-40 flex items-center justify-center rounded-md bg-background/80 backdrop-blur-[2px]">
+                      <div className="absolute inset-0 z-40 flex items-center justify-center rounded-md bg-white dark:bg-[hsl(220,20%,10%)]">
                         <div className="flex items-center gap-1">
                           <button onClick={() => setDeleteTarget(null)} className="px-2 py-0.5 rounded text-[10px] text-muted-foreground hover:bg-muted transition-colors">{t.cancelDelete}</button>
                           <button onClick={() => deleteSession(s.session_id)} className="px-2 py-0.5 rounded text-[10px] font-medium text-white bg-danger hover:bg-danger/90 transition-colors">{t.confirmDelete}</button>
@@ -223,7 +223,7 @@ export function Layout() {
                         </button>
                         </div>
                         {isMenuOpen && (
-                          <div className="absolute right-0 top-full mt-1 z-50 min-w-[100px] rounded-md border bg-popover p-1 shadow-md" style={{ animation: "popoverIn 0.15s ease-out" }}>
+                          <div className="absolute right-0 top-full mt-1 z-50 min-w-[100px] rounded-md border bg-white dark:bg-[hsl(220,20%,10%)] p-1 shadow-md" style={{ animation: "popoverIn 0.15s ease-out" }}>
                             <button
                               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuTarget(null); setRenameTarget(s.session_id); setRenameValue(s.title || ""); }}
                               className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"

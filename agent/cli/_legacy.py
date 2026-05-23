@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Vibe-Trading CLI for natural-language finance research and backtesting.
+"""Deep-Trace CLI for natural-language finance research and backtesting.
 
 Usage:
-    vibe-trading                           Interactive mode (default)
-    vibe-trading -p "Backtest AAPL MACD"   Single run
-    vibe-trading serve --port 8888         Start API server
-    vibe-trading chat                      Interactive mode
-    vibe-trading list                      List runs
-    vibe-trading show <run_id>             Show run details
+    deep-trace                           Interactive mode (default)
+    deep-trace -p "Backtest AAPL MACD"   Single run
+    deep-trace serve --port 8888         Start API server
+    deep-trace chat                      Interactive mode
+    deep-trace list                      List runs
+    deep-trace show <run_id>             Show run details
 """
 
 from __future__ import annotations
@@ -189,7 +189,7 @@ def _read_input(prompt_session: Any, prompt_str: str = "> ") -> str:
     return Prompt.ask(f"[bold]{prompt_str}[/bold]")
 
 
-_SERVER_STATE_FILE = Path.home() / ".vibe-trading" / "server.json"
+_SERVER_STATE_FILE = Path.home() / ".deep-trace" / "server.json"
 
 
 def _write_server_state(pid: int, port: int, host: str) -> None:
@@ -890,7 +890,7 @@ class _RunDashboard:
             body.add_row("")
             body.add_row(Panel(Text(latest, style="dim"), title="Latest answer", border_style="dim", padding=(0, 1)))
 
-        return Panel(body, title="Vibe-Trading", border_style="cyan", padding=(1, 1 if compact else 2))
+        return Panel(body, title="Deep-Trace", border_style="cyan", padding=(1, 1 if compact else 2))
 
 
 # ---------------------------------------------------------------------------
@@ -1295,9 +1295,9 @@ def _print_result(result: dict, elapsed: float, *, no_rich: bool = False) -> Non
         actions = Table(box=None, show_header=False, padding=(0, 1))
         actions.add_column(style="cyan", no_wrap=True)
         actions.add_column(style="dim")
-        actions.add_row(f"vibe-trading show {rid}", "details")
-        actions.add_row(f"vibe-trading code {rid}", "generated Python")
-        actions.add_row(f"vibe-trading continue {rid} \"...\"", "refine this run")
+        actions.add_row(f"deep-trace show {rid}", "details")
+        actions.add_row(f"deep-trace code {rid}", "generated Python")
+        actions.add_row(f"deep-trace continue {rid} \"...\"", "refine this run")
         panels.append(Panel(actions, border_style="dim", title="Next", padding=(0, 1)))
 
     if _terminal_width() < 104:
@@ -1471,7 +1471,7 @@ def _build_welcome_panel(term_width: Optional[int] = None) -> Panel:
     content_width = widths["content"]
 
     header_lines: list[Text] = []
-    title = f"Vibe-Trading v{_VERSION}"
+    title = f"Deep-Trace v{_VERSION}"
     subtitle = "finance agent CLI"
     if term_width < 78:
         header_lines.append(Text(title, style="bold cyan"))
@@ -1597,7 +1597,7 @@ def _build_welcome_panel(term_width: Optional[int] = None) -> Panel:
     body.add_row("")
     body.add_row(Text(_clip_inline("Example: analyze AAPL momentum with risk controls", content_width), style="dim"))
 
-    return Panel(body, title="[bold cyan]Vibe-Trading[/bold cyan]", border_style="cyan", padding=(1, 1))
+    return Panel(body, title="[bold cyan]Deep-Trace[/bold cyan]", border_style="cyan", padding=(1, 1))
 
 
 def _print_welcome() -> None:
@@ -1694,7 +1694,7 @@ def _show_settings() -> None:
             console.print(panel)
     else:
         console.print(Columns(panels, expand=True, equal=True))
-    console.print("[dim]Edit configuration in ~/.vibe-trading/.env, or run vibe-trading init.[/dim]")
+    console.print("[dim]Edit configuration in ~/.deep-trace/.env, or run deep-trace init.[/dim]")
 
 
 def _handle_slash_command(input_str: str, *, max_iter: int) -> None:
@@ -2677,8 +2677,8 @@ def cmd_provider_login(provider: str) -> int:
 
 def _build_parser() -> argparse.ArgumentParser:
     """Build the CLI parser with subcommands and compatibility flags."""
-    parser = argparse.ArgumentParser(description="Vibe-Trading CLI")
-    parser.add_argument("--version", action="version", version=f"vibe-trading {_VERSION}")
+    parser = argparse.ArgumentParser(description="Deep-Trace CLI")
+    parser.add_argument("--version", action="version", version=f"deep-trace {_VERSION}")
     parser.add_argument("-p", "--prompt", type=str, help="Prompt text")
     parser.add_argument("-f", "--prompt-file", type=Path, help="Read prompt text from a file")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON output")
@@ -2736,7 +2736,7 @@ def _build_parser() -> argparse.ArgumentParser:
     chat_parser = subparsers.add_parser("chat", help="Interactive chat mode")
     chat_parser.add_argument("--max-iter", dest="chat_max_iter", type=int, default=50, help="Maximum agent iterations")
 
-    subparsers.add_parser("init", help="Interactive setup: create ~/.vibe-trading/.env")
+    subparsers.add_parser("init", help="Interactive setup: create ~/.deep-trace/.env")
 
     memory_parser = subparsers.add_parser("memory", help="Inspect persistent memory")
     memory_subparsers = memory_parser.add_subparsers(dest="memory_command")
@@ -2799,7 +2799,7 @@ def _handle_prompt_command(
     return cmd_run(resolved_prompt, max_iter, json_mode=json_mode, no_rich=no_rich)
 
 
-_INIT_ENV_PATH = Path.home() / ".vibe-trading" / ".env"
+_INIT_ENV_PATH = Path.home() / ".deep-trace" / ".env"
 
 _PROVIDER_CHOICES: list[dict[str, str | None]] = [
     {
@@ -3046,7 +3046,7 @@ def cmd_memory_show(name: str, *, memory_dir: Optional[Path] = None) -> int:
     entry = pm.find(name)
     if entry is None:
         console.print(f"[red]Memory not found:[/red] {rich_escape(name)}")
-        console.print("[dim]Run `vibe-trading memory list` to see available titles.[/dim]")
+        console.print("[dim]Run `deep-trace memory list` to see available titles.[/dim]")
         return EXIT_USAGE_ERROR
 
     style = _MEMORY_TYPE_STYLES.get(entry.memory_type, "white")
@@ -3122,8 +3122,8 @@ def cmd_memory_forget(name: str, *, yes: bool = False, memory_dir: Optional[Path
 
 
 def cmd_init() -> int:
-    """Interactive setup: create ~/.vibe-trading/.env."""
-    console.print(Panel("[bold cyan]Vibe-Trading setup[/bold cyan]\n[dim]Configure the default LLM provider and data tokens.[/dim]", border_style="cyan"))
+    """Interactive setup: create ~/.deep-trace/.env."""
+    console.print(Panel("[bold cyan]Deep-Trace setup[/bold cyan]\n[dim]Configure the default LLM provider and data tokens.[/dim]", border_style="cyan"))
 
     if _INIT_ENV_PATH.exists():
         console.print(f"[yellow]Config already exists:[/yellow] {_INIT_ENV_PATH}")
@@ -3181,7 +3181,7 @@ def cmd_init() -> int:
             )
     elif provider == "openai-codex":
         console.print("[dim]OpenAI Codex uses ChatGPT OAuth, not an API key.[/dim]")
-        console.print("[dim]After setup, run: vibe-trading provider login openai-codex[/dim]")
+        console.print("[dim]After setup, run: deep-trace provider login openai-codex[/dim]")
     else:
         console.print("[dim]Ollama does not require an API key.[/dim]")
 
@@ -3216,9 +3216,9 @@ def cmd_init() -> int:
     next_steps.add_column(width=10, style="dim")
     next_steps.add_column(ratio=1)
     next_steps.add_row("Config", f"[cyan]{_INIT_ENV_PATH}[/cyan]")
-    next_steps.add_row("Run", "[bold]vibe-trading[/bold]")
+    next_steps.add_row("Run", "[bold]deep-trace[/bold]")
     if provider == "openai-codex":
-        next_steps.add_row("OAuth", "[bold]vibe-trading provider login openai-codex[/bold]")
+        next_steps.add_row("OAuth", "[bold]deep-trace provider login openai-codex[/bold]")
     console.print(Panel(next_steps, title="Setup complete", border_style="green", padding=(0, 1)))
     return 0
 
@@ -3243,7 +3243,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "provider":
         if args.provider_command == "login":
             return cmd_provider_login(args.provider)
-        console.print("[red]provider requires a subcommand.[/red] Try: vibe-trading provider login openai-codex")
+        console.print("[red]provider requires a subcommand.[/red] Try: deep-trace provider login openai-codex")
         return EXIT_USAGE_ERROR
     if args.command == "run":
         return _handle_prompt_command(
@@ -3274,7 +3274,7 @@ def main(argv: list[str] | None = None) -> int:
             return _coerce_exit_code(cmd_memory_search(args.query, args.memory_limit))
         if args.memory_command == "forget":
             return _coerce_exit_code(cmd_memory_forget(args.name, yes=args.yes))
-        console.print("[red]memory requires a subcommand.[/red] Try: vibe-trading memory list")
+        console.print("[red]memory requires a subcommand.[/red] Try: deep-trace memory list")
         return EXIT_USAGE_ERROR
 
     if args.list:

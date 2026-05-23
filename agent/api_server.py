@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Vibe-Trading API Server - RESTful API for finance research and backtesting.
+"""Deep-Trace API Server - RESTful API for finance research and backtesting.
 
 V5: ReAct Agent + async /run + CORS env + SSE tool events.
 """
@@ -244,8 +244,8 @@ class MessageResponse(BaseModel):
 # ============================================================================
 
 app = FastAPI(
-    title="Vibe-Trading API",
-    description="Vibe-Trading API: natural-language finance research, backtesting, and swarm workflows",
+    title="Deep-Trace API",
+    description="Deep-Trace API: natural-language finance research, backtesting, and swarm workflows",
     version="5.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -367,8 +367,8 @@ async def _run_startup_preflight() -> None:
 
 _security = HTTPBearer(auto_error=False)
 _API_KEY = os.getenv("API_AUTH_KEY")
-_SHELL_TOOLS_ENV = "VIBE_TRADING_ENABLE_SHELL_TOOLS"
-_DOCKER_LOOPBACK_ENV = "VIBE_TRADING_TRUST_DOCKER_LOOPBACK"
+_SHELL_TOOLS_ENV = "DEEP_TRACE_ENABLE_SHELL_TOOLS"
+_DOCKER_LOOPBACK_ENV = "DEEP_TRACE_TRUST_DOCKER_LOOPBACK"
 
 
 def _configured_api_key() -> str:
@@ -571,7 +571,7 @@ TUSHARE_TOKEN_PLACEHOLDERS = {"", "your-tushare-token"}
 def _ensure_agent_env_file() -> Path:
     """Ensure the project-local agent/.env exists."""
     if not ENV_PATH.exists():
-        ENV_PATH.write_text("# Created by Vibe-Trading Web UI settings.\n", encoding="utf-8")
+        ENV_PATH.write_text("# Created by Deep-Trace Web UI settings.\n", encoding="utf-8")
     return ENV_PATH
 
 
@@ -1233,7 +1233,7 @@ async def health_check():
     """Liveness probe."""
     return HealthResponse(
         status="healthy",
-        service="Vibe-Trading API",
+        service="Deep-Trace API",
         timestamp=datetime.now().isoformat()
     )
 
@@ -1284,7 +1284,7 @@ async def shutdown_local_api(background_tasks: BackgroundTasks, request: Request
     background_tasks.add_task(_terminate_current_process)
     return {
         "status": "shutting-down",
-        "service": "Vibe-Trading API",
+        "service": "Deep-Trace API",
         "timestamp": datetime.now().isoformat(),
     }
 
@@ -1308,7 +1308,7 @@ async def list_skills():
 async def api_info():
     """Service metadata."""
     return {
-        "service": "Vibe-Trading API",
+        "service": "Deep-Trace API",
         "version": "5.0.0",
         "docs": "/docs",
         "health": "/health",
@@ -1562,14 +1562,14 @@ _SHADOW_ID_RE = __import__("re").compile(r"^shadow_[0-9a-f]{8}$")
 async def get_shadow_report(shadow_id: str, format: str = "html"):
     """Serve a rendered Shadow Account report (HTML by default, PDF if available).
 
-    Reports live under ``~/.vibe-trading/shadow_reports/<shadow_id>.{html,pdf}``.
+    Reports live under ``~/.deep-trace/shadow_reports/<shadow_id>.{html,pdf}``.
     """
     if not _SHADOW_ID_RE.match(shadow_id):
         raise HTTPException(status_code=400, detail="invalid shadow_id")
     if format not in ("html", "pdf"):
         raise HTTPException(status_code=400, detail="format must be html or pdf")
 
-    reports_dir = Path.home() / ".vibe-trading" / "shadow_reports"
+    reports_dir = Path.home() / ".deep-trace" / "shadow_reports"
     path = reports_dir / f"{shadow_id}.{format}"
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"Shadow report not found: {shadow_id}.{format}")
@@ -1808,7 +1808,7 @@ def serve_main(argv: list[str] | None = None) -> int:
                     raise
                 return await super().get_response("index.html", scope)
 
-    parser = argparse.ArgumentParser(description="Vibe-Trading Server")
+    parser = argparse.ArgumentParser(description="Deep-Trace Server")
     parser.add_argument("--port", type=int, default=8888, help="Listen port (default 8888)")
     parser.add_argument("--host", default="0.0.0.0", help="Bind address")
     parser.add_argument("--dev", action="store_true", help="Dev mode: spawn Vite on :5173")
@@ -1841,7 +1841,7 @@ def serve_main(argv: list[str] | None = None) -> int:
         print("[warn] Run: cd frontend && npm run build")
 
     print("=" * 50)
-    print("  Vibe-Trading Server")
+    print("  Deep-Trace Server")
     print(f"  http://127.0.0.1:{args.port}")
     print("=" * 50)
 

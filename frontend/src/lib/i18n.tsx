@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 
 export type Locale = "en" | "zh";
 
-const STORAGE_KEY = "vibe-trading-locale";
+const STORAGE_KEY = "deep-trace-locale";
 
 function detectLocale(): Locale {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -81,7 +81,7 @@ const en = {
   feat4: "Strategy Replay", feat4d: "Trade journal analyzer + Shadow Account — extract your rules, backtest them, attribute PnL delta",
   score: "Score", passed: "Passed", failed: "Failed", findings: "Findings", recommendations: "Recommendations",
   darkMode: "Dark", lightMode: "Light", language: "Language",
-  sessions: "Sessions", newChat: "New Chat", deleteConfirm: "Delete?",
+  sessions: "Sessions", newChat: "New Chat", deleteConfirm: "Delete",
   noSessions: "No sessions yet",
   viewDetails: "View Details",
   fullReport: "Full Report →",
@@ -246,7 +246,7 @@ const zh = {
   feat4: "策略复盘", feat4d: "交易日志分析 + 影子账户——提取你的规则、回测并归因盈亏差异",
   score: "评分", passed: "通过", failed: "未通过", findings: "发现", recommendations: "建议",
   darkMode: "深色", lightMode: "浅色", language: "语言",
-  sessions: "会话", newChat: "新对话", deleteConfirm: "删除？",
+  sessions: "会话", newChat: "新对话", deleteConfirm: "删除",
   noSessions: "暂无会话",
   viewDetails: "查看详情",
   fullReport: "完整报告 →",

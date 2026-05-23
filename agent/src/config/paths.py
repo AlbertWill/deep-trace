@@ -16,11 +16,11 @@ def get_runtime_root(config_path: Path | None = None) -> Path:
 
     Returns:
         The directory containing the explicit structured config file when one
-        is provided, otherwise the default ``~/.vibe-trading`` runtime root.
+        is provided, otherwise the default ``~/.deep-trace`` runtime root.
     """
     if config_path is not None:
         return config_path.expanduser().parent
-    return Path.home() / ".vibe-trading"
+    return Path.home() / ".deep-trace"
 
 
 def get_config_candidates(config_path: Path | None = None) -> list[Path]:

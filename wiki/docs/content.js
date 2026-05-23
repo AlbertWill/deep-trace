@@ -1,6 +1,6 @@
 export const DOCS_DEFAULT_VERSION = "0.1.8";
 export const DOCS_LATEST_ALIAS = "latest";
-export const DOCS_DEFAULT_PAGE = "getting-started/vibe-trading-overview";
+export const DOCS_DEFAULT_PAGE = "getting-started/deep-trace-overview";
 
 export const DOCS_VERSIONS = [
   { name: "0.1.8", label: "0.1.8 (latest)" },
@@ -13,16 +13,16 @@ export const DOCS_STRUCTURE = [
     label: "Getting started",
     pages: [
       {
-        id: "getting-started/vibe-trading-overview",
-        title: "Vibe-Trading overview",
-        description: "What Vibe-Trading is, where it fits, and what boundary it keeps.",
-        lead: "Vibe-Trading is an open-source finance research workspace that turns natural-language prompts into market-data pulls, backtests, reports, and reusable research context.",
+        id: "getting-started/deep-trace-overview",
+        title: "Deep-Trace overview",
+        description: "What Deep-Trace is, where it fits, and what boundary it keeps.",
+        lead: "Deep-Trace is an open-source finance research workspace that turns natural-language prompts into market-data pulls, backtests, reports, and reusable research context.",
         sections: [
           {
             id: "what-it-is",
             title: "What it is",
             body: `
-              <p>Vibe-Trading connects an agent loop to finance tools: data loaders, strategy generation, backtest engines, document readers, trade-journal analysis, persistent memory, and multi-agent research teams.</p>
+              <p>Deep-Trace connects an agent loop to finance tools: data loaders, strategy generation, backtest engines, document readers, trade-journal analysis, persistent memory, and multi-agent research teams.</p>
               <p>The goal is not to replace judgment. The goal is to make every research step runnable, inspectable, and easy to repeat.</p>
             `
           },
@@ -30,7 +30,7 @@ export const DOCS_STRUCTURE = [
             id: "research-only",
             title: "Research only",
             body: `
-              <p>Vibe-Trading does not execute live trades. It is designed for simulation, backtesting, audit trails, and research workflows. Outputs are not investment advice.</p>
+              <p>Deep-Trace does not execute live trades. It is designed for simulation, backtesting, audit trails, and research workflows. Outputs are not investment advice.</p>
             `
           },
           {
@@ -52,30 +52,30 @@ export const DOCS_STRUCTURE = [
       {
         id: "getting-started/quick-start",
         title: "Quick start",
-        description: "Install Vibe-Trading, initialize configuration, and run the first research task.",
+        description: "Install Deep-Trace, initialize configuration, and run the first research task.",
         lead: "The fastest path is PyPI install, interactive setup, then either CLI research or the local web UI.",
         sections: [
           {
             id: "install",
             title: "Install",
             body: `
-              <pre><code>pip install vibe-trading-ai
-vibe-trading init
-vibe-trading</code></pre>
+              <pre><code>pip install deep-trace-ai
+deep-trace init
+deep-trace</code></pre>
             `
           },
           {
             id: "first-run",
             title: "First run",
             body: `
-              <pre><code>vibe-trading run -p "Backtest a BTC-USDT 20/50 moving-average strategy for 2024, summarize return and drawdown, then export the report"</code></pre>
+              <pre><code>deep-trace run -p "Backtest a BTC-USDT 20/50 moving-average strategy for 2024, summarize return and drawdown, then export the report"</code></pre>
             `
           },
           {
             id: "web-ui",
             title: "Open the web UI",
             body: `
-              <pre><code>vibe-trading serve --port 8899</code></pre>
+              <pre><code>deep-trace serve --port 8899</code></pre>
               <p>The local web UI is useful when you want uploaded files, streaming swarm progress, Settings, and generated artifacts in one place.</p>
             `
           }
@@ -85,7 +85,7 @@ vibe-trading</code></pre>
         id: "getting-started/configuration",
         title: "Configuration",
         description: "Provider, model, market-data, and deployment settings.",
-        lead: "Vibe-Trading keeps secrets and deployment-specific choices in environment variables or local Settings, not in source files.",
+        lead: "Deep-Trace keeps secrets and deployment-specific choices in environment variables or local Settings, not in source files.",
         sections: [
           {
             id: "env",
@@ -95,7 +95,7 @@ vibe-trading</code></pre>
 LANGCHAIN_MODEL_NAME=deepseek-v4-pro
 TUSHARE_TOKEN=your-token
 TIMEOUT_SECONDS=2400</code></pre>
-              <p>Run <code>vibe-trading init</code> to bootstrap the local configuration interactively.</p>
+              <p>Run <code>deep-trace init</code> to bootstrap the local configuration interactively.</p>
             `
           },
           {
@@ -124,7 +124,7 @@ TIMEOUT_SECONDS=2400</code></pre>
       {
         id: "core-concepts/research-workflow",
         title: "Research workflow",
-        description: "How a Vibe-Trading run moves from prompt to evidence.",
+        description: "How a Deep-Trace run moves from prompt to evidence.",
         lead: "A good run routes the request, grounds it in data, executes tools, validates outputs, and leaves artifacts behind.",
         sections: [
           {
@@ -153,7 +153,7 @@ TIMEOUT_SECONDS=2400</code></pre>
         id: "core-concepts/backtesting",
         title: "Backtesting",
         description: "Market coverage, engines, metrics, and validation tools.",
-        lead: "Vibe-Trading backtests daily and minute strategies across multiple asset classes, then keeps outputs auditable with metrics and run cards.",
+        lead: "Deep-Trace backtests daily and minute strategies across multiple asset classes, then keeps outputs auditable with metrics and run cards.",
         sections: [
           {
             id: "engines",
@@ -177,7 +177,7 @@ TIMEOUT_SECONDS=2400</code></pre>
             id: "example",
             title: "Example",
             body: `
-              <pre><code>vibe-trading run -p "Backtest an equal-weight SPY and BTC-USDT momentum rotation strategy for 2024 with benchmark comparison"</code></pre>
+              <pre><code>deep-trace run -p "Backtest an equal-weight SPY and BTC-USDT momentum rotation strategy for 2024 with benchmark comparison"</code></pre>
             `
           }
         ]
@@ -192,9 +192,9 @@ TIMEOUT_SECONDS=2400</code></pre>
             id: "presets",
             title: "Presets",
             body: `
-              <p>Vibe-Trading includes 29 presets such as investment committee, quant strategy desk, crypto trading desk, macro rates and FX desk, and risk committee.</p>
-              <pre><code>vibe-trading --swarm-presets
-vibe-trading --swarm-run investment_committee '{"topic":"BTC outlook"}'</code></pre>
+              <p>Deep-Trace includes 29 presets such as investment committee, quant strategy desk, crypto trading desk, macro rates and FX desk, and risk committee.</p>
+              <pre><code>deep-trace --swarm-presets
+deep-trace --swarm-run investment_committee '{"topic":"BTC outlook"}'</code></pre>
             `
           },
           {
@@ -215,7 +215,7 @@ vibe-trading --swarm-run investment_committee '{"topic":"BTC outlook"}'</code></
       {
         id: "tools/data-sources",
         title: "Data sources",
-        description: "How Vibe-Trading routes symbols and market data providers.",
+        description: "How Deep-Trace routes symbols and market data providers.",
         lead: "Data routing is provider-aware: mixed symbols can use <code>source=\"auto\"</code> while each market keeps its own data rules.",
         sections: [
           {
@@ -262,8 +262,8 @@ vibe-trading --swarm-run investment_committee '{"topic":"BTC outlook"}'</code></
             id: "example",
             title: "Example",
             body: `
-              <pre><code>vibe-trading --upload trades_export.csv
-vibe-trading run -p "Analyze my trading behavior, extract my shadow strategy, and compare it with my actual trades"</code></pre>
+              <pre><code>deep-trace --upload trades_export.csv
+deep-trace run -p "Analyze my trading behavior, extract my shadow strategy, and compare it with my actual trades"</code></pre>
             `
           }
         ]
@@ -278,7 +278,7 @@ vibe-trading run -p "Analyze my trading behavior, extract my shadow strategy, an
             id: "library",
             title: "Library",
             body: `
-              <p>Vibe-Trading bundles specialized skills across data sources, strategy generation, analysis, options, reporting, tools, and risk workflows.</p>
+              <p>Deep-Trace bundles specialized skills across data sources, strategy generation, analysis, options, reporting, tools, and risk workflows.</p>
               <p>Good prompts can ask the agent to load or create skills for repeated research patterns.</p>
             `
           },
@@ -312,13 +312,13 @@ vibe-trading run -p "Analyze my trading behavior, extract my shadow strategy, an
             id: "commands",
             title: "Common commands",
             body: `
-              <pre><code>vibe-trading
-vibe-trading init
-vibe-trading run -p "your research prompt"
-vibe-trading --upload report.pdf
-vibe-trading memory list
-vibe-trading serve --port 8899
-vibe-trading-mcp</code></pre>
+              <pre><code>deep-trace
+deep-trace init
+deep-trace run -p "your research prompt"
+deep-trace --upload report.pdf
+deep-trace memory list
+deep-trace serve --port 8899
+deep-trace-mcp</code></pre>
             `
           },
           {
@@ -333,14 +333,14 @@ vibe-trading-mcp</code></pre>
       {
         id: "reference/mcp-server",
         title: "MCP server",
-        description: "Expose Vibe-Trading tools to MCP-compatible clients.",
-        lead: "The MCP server runs as a stdio subprocess and exposes Vibe-Trading tools to agent clients.",
+        description: "Expose Deep-Trace tools to MCP-compatible clients.",
+        lead: "The MCP server runs as a stdio subprocess and exposes Deep-Trace tools to agent clients.",
         sections: [
           {
             id: "start",
             title: "Start",
             body: `
-              <pre><code>vibe-trading-mcp</code></pre>
+              <pre><code>deep-trace-mcp</code></pre>
             `
           },
           {
@@ -349,8 +349,8 @@ vibe-trading-mcp</code></pre>
             body: `
               <pre><code>{
   "mcpServers": {
-    "vibe-trading": {
-      "command": "vibe-trading-mcp"
+    "deep-trace": {
+      "command": "deep-trace-mcp"
     }
   }
 }</code></pre>
@@ -379,7 +379,7 @@ vibe-trading-mcp</code></pre>
                 <li>Project root: <code>wiki</code></li>
                 <li>Build command: leave empty</li>
                 <li>Output directory: <code>.</code></li>
-                <li>Custom domain: <code>vibetrading.wiki</code></li>
+                <li>Custom domain: <code>deeptrace.wiki</code></li>
               </ul>
             `
           },

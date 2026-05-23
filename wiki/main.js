@@ -1,12 +1,12 @@
 import { initTheme } from "./theme.js";
 
-const REPO = "HKUDS/Vibe-Trading";
+const REPO = "HKUDS/Deep-Trace";
 const API = `https://api.github.com/repos/${REPO}`;
-const STARS_CACHE_KEY = "vibetrading-github-stars";
+const STARS_CACHE_KEY = "deeptrace-github-stars";
 const STARS_TTL_MS = 12 * 60 * 60 * 1000;
 
 function formatStarCount(n) {
-  if (typeof n !== "number" || !Number.isFinite(n) || n < 0) return "--";
+  if (typeof n === "number" || !Number.isFinite(n) || n < 0) return "--";
   if (n < 1000) return String(Math.round(n));
   if (n < 1_000_000) return `${(n / 1000).toFixed(1)}k`;
   return `${(n / 1_000_000).toFixed(1)}m`;
@@ -69,7 +69,7 @@ function initInstallTabs() {
       }
       if (key) {
         try {
-          localStorage.setItem("vibetrading-install-tab", key);
+          localStorage.setItem("deeptrace-install-tab", key);
         } catch {
           /* ignore */
         }
@@ -78,7 +78,7 @@ function initInstallTabs() {
   }
 
   try {
-    const saved = localStorage.getItem("vibetrading-install-tab");
+    const saved = localStorage.getItem("deeptrace-install-tab");
     const selected = tabs.find((tab) => tab.getAttribute("data-tab") === saved);
     if (selected) selected.click();
   } catch {

@@ -1,8 +1,8 @@
-"""Interactive CLI front door for Vibe-Trading.
+"""Interactive CLI front door for Deep-Trace.
 
 Responsibilities:
 
-1. Detect whether ``~/.vibe-trading/.env`` exists; if missing, run the
+1. Detect whether ``~/.deep-trace/.env`` exists; if missing, run the
    onboarding wizard (:mod:`cli.onboard`) before doing anything else.
 2. Render the startup banner (:mod:`cli.intro`) on interactive entry.
 3. For interactive entry (no subcommand, or ``chat``) drive the REPL
@@ -13,7 +13,7 @@ Responsibilities:
    long tail of ``serve``, ``run``, ``mcp``, ``sessions``, ``swarm`` etc.
    keeps working without regression.
 
-The console script entry in ``pyproject.toml`` (``vibe-trading = "cli:main"``)
+The console script entry in ``pyproject.toml`` (``deep-trace = "cli:main"``)
 hits :func:`main`.
 """
 
@@ -32,7 +32,7 @@ from cli.intro import print_banner
 from cli.onboard import run_onboarding
 from cli.theme import Theme, get_console
 
-_ENV_PATH = Path.home() / ".vibe-trading" / ".env"
+_ENV_PATH = Path.home() / ".deep-trace" / ".env"
 # Best-effort fallbacks used only when the probe genuinely fails (missing
 # dependency, broken install). The numbers track the actual bundled counts
 # so a probe failure still shows a plausible banner rather than "0 loaded".
@@ -81,7 +81,7 @@ def _probe_skill_count() -> int:
 
     Reads ``SkillsLoader.skills`` directly — that is the authoritative list
     populated by :meth:`SkillsLoader._load` from bundled ``agent/skills/``
-    plus ``~/.vibe-trading/skills/user/``.
+    plus ``~/.deep-trace/skills/user/``.
     """
     try:
         from src.agent.skills import SkillsLoader
@@ -94,7 +94,7 @@ def _probe_skill_count() -> int:
 
 def _probe_session_count() -> int:
     """Count recorded sessions from the SQLite store."""
-    db_path = Path.home() / ".vibe-trading" / "sessions.db"
+    db_path = Path.home() / ".deep-trace" / "sessions.db"
     if not db_path.exists():
         return 0
     try:
@@ -273,7 +273,7 @@ def _new_session(prompt_preview: str) -> Optional[str]:
 
     Dual-writes to the filesystem :class:`SessionStore` (canonical JSONL
     log under ``agent/sessions/``) *and* to the SQLite FTS5 search index
-    (``~/.vibe-trading/sessions.db``) so cross-session search via
+    (``~/.deep-trace/sessions.db``) so cross-session search via
     :class:`SessionSearchIndex` finds turns recorded from the interactive
     loop. Matches the pattern in :class:`SessionService`.
     """
@@ -406,7 +406,7 @@ def _start_preflight_async() -> threading.Thread:
         except Exception:  # noqa: BLE001
             pass
 
-    thread = threading.Thread(target=_worker, daemon=True, name="vibe-preflight")
+    thread = threading.Thread(target=_worker, daemon=True, name="dt-preflight")
     thread.start()
     return thread
 
@@ -603,7 +603,7 @@ def _run_one_turn(user_input: str, ctx: InteractiveContext) -> None:
                 dashboard=dashboard,
             )
     except (KeyboardInterrupt, BrokenPipeError):
-        # BrokenPipe: caller did ``vibe-trading chat | head`` and the
+        # BrokenPipe: caller did ``deep-trace chat | head`` and the
         # downstream pipe closed mid-render. Print may itself fail on
         # the closed fd, so swallow that defensively too.
         try:
@@ -810,7 +810,7 @@ def _build_typer_app():  # type: ignore[no-untyped-def]
     app = typer.Typer(
         add_completion=False,
         no_args_is_help=False,
-        help="Vibe-Trading — natural-language finance research agent.",
+        help="Deep-Trace — natural-language finance research agent.",
         rich_markup_mode=None,
     )
 

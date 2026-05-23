@@ -17,7 +17,7 @@ def _body(raw: str) -> dict:
 
 
 def test_write_file_rejects_unconfigured_absolute_run_dir(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.delenv("VIBE_TRADING_ALLOWED_RUN_ROOTS", raising=False)
+    monkeypatch.delenv("DEEP_TRACE_ALLOWED_RUN_ROOTS", raising=False)
 
     body = _body(WriteFileTool().execute(
         path="code/signal_engine.py",
@@ -31,7 +31,7 @@ def test_write_file_rejects_unconfigured_absolute_run_dir(tmp_path: Path, monkey
 
 
 def test_read_and_edit_file_accept_configured_run_root(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setenv("VIBE_TRADING_ALLOWED_RUN_ROOTS", str(tmp_path))
+    monkeypatch.setenv("DEEP_TRACE_ALLOWED_RUN_ROOTS", str(tmp_path))
     target = tmp_path / "run" / "notes.md"
     target.parent.mkdir(parents=True)
     target.write_text("alpha beta", encoding="utf-8")
@@ -51,7 +51,7 @@ def test_read_and_edit_file_accept_configured_run_root(tmp_path: Path, monkeypat
 
 
 def test_backtest_rejects_unconfigured_absolute_run_dir(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.delenv("VIBE_TRADING_ALLOWED_RUN_ROOTS", raising=False)
+    monkeypatch.delenv("DEEP_TRACE_ALLOWED_RUN_ROOTS", raising=False)
     (tmp_path / "code").mkdir()
     (tmp_path / "config.json").write_text('{"source":"auto","codes":["AAPL"]}', encoding="utf-8")
     (tmp_path / "code" / "signal_engine.py").write_text(

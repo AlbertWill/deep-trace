@@ -48,8 +48,10 @@ data/overnight*.log
 data/*.log
 data/test_write.txt
 agent/.pytest_tmp/
-agent/vibe_trading.egg-info/
+agent/deep_trace_ai.egg-info/
 agent/vibe_trading_ai.egg-info/
+frontend/tests/
+frontend/playwright.config.ts
 agent/tests/e2e_backtest/
 dist/
 build/

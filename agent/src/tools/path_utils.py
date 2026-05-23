@@ -20,8 +20,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-_ALLOWED_FILE_ROOTS_ENV = "VIBE_TRADING_ALLOWED_FILE_ROOTS"
-_ALLOWED_RUN_ROOTS_ENV = "VIBE_TRADING_ALLOWED_RUN_ROOTS"
+_ALLOWED_FILE_ROOTS_ENV = "DEEP_TRACE_ALLOWED_FILE_ROOTS"
+_ALLOWED_RUN_ROOTS_ENV = "DEEP_TRACE_ALLOWED_RUN_ROOTS"
 
 
 def _rejects_unc(p: str) -> None:
@@ -82,8 +82,8 @@ def _default_file_roots() -> list[Path]:
         agent_root / "runs",
         cwd / "uploads",
         cwd / "data",
-        home / ".vibe-trading" / "uploads",
-        home / ".vibe-trading" / "imports",
+        home / ".deep-trace" / "uploads",
+        home / ".deep-trace" / "imports",
     ]
 
 
@@ -98,7 +98,7 @@ def _default_run_roots() -> list[Path]:
         agent_root / "runs",
         swarm_runs_root(),
         cwd / "runs",
-        home / ".vibe-trading" / "shadow_runs",
+        home / ".deep-trace" / "shadow_runs",
     ]
 
 

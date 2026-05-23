@@ -311,14 +311,14 @@ class TestInputHelpers:
         from cli.input import ctrl_c_within_window
 
         state = SimpleNamespace(last_press_ts=time.monotonic())
-        session = SimpleNamespace(vibe_ctrl_c_state=state)
+        session = SimpleNamespace(dt_ctrl_c_state=state)
         assert ctrl_c_within_window(session, window_sec=2.0) is True
 
     def test_ctrl_c_window_expires(self) -> None:
         from cli.input import ctrl_c_within_window
 
         state = SimpleNamespace(last_press_ts=time.monotonic() - 10.0)
-        session = SimpleNamespace(vibe_ctrl_c_state=state)
+        session = SimpleNamespace(dt_ctrl_c_state=state)
         assert ctrl_c_within_window(session, window_sec=2.0) is False
 
 
@@ -368,7 +368,7 @@ class TestCtrlCTwoPress:
         state = _CtrlCState()
         # Simulate the keybinding's press-time decision.
         state.record_press_and_check_window(window_sec=2.0)  # first → False
-        session = SimpleNamespace(vibe_ctrl_c_state=state)
+        session = SimpleNamespace(dt_ctrl_c_state=state)
         assert ctrl_c_within_window(session, window_sec=2.0) is False
 
         state.record_press_and_check_window(window_sec=2.0)  # second → True

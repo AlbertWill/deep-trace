@@ -150,7 +150,8 @@ export function Agent() {
       act().setSessionLoading(false);
       act().cacheSession(sid, agentMsgs);
       setTimeout(() => forceScrollToBottom(), 50);
-    } catch {
+    } catch (err) {
+      if (genRef.current !== gen) return;
       act().setSessionLoading(false);
     }
   }, [forceScrollToBottom]);
@@ -315,6 +316,10 @@ export function Agent() {
       } else {
         loadSessionMessages(urlSessionId, gen);
       }
+      setupSSE(urlSessionId);
+    } else if (urlSessionId && urlSessionId === curSid && curMsgs.length === 0) {
+      // Same session but messages empty (e.g. page refresh before store hydrated)
+      loadSessionMessages(urlSessionId, gen);
       setupSSE(urlSessionId);
     } else if (!urlSessionId && curSid) {
       doDisconnect();

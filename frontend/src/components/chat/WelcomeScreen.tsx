@@ -161,7 +161,7 @@ export function WelcomeScreen({ onExample }: Props) {
           <Bot className="h-8 w-8 text-white" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Vibe-Trading</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Deep-Trace</h2>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto leading-relaxed">
             vibe trading with your professional financial agent team
           </p>

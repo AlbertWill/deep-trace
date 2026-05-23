@@ -1,15 +1,15 @@
 services:
-  vibe-trading:
+  deep-trace:
     build: .
     ports:
       - "127.0.0.1:8888:8888"
     env_file:
       - agent/.env
     environment:
-      - VIBE_TRADING_TRUST_DOCKER_LOOPBACK=1
+      - DEEP_TRACE_TRUST_DOCKER_LOOPBACK=1
     volumes:
-      - vibe-runs:/app/agent/runs
-      - vibe-sessions:/app/agent/sessions
+      - deep-trace-runs:/app/agent/runs
+      - deep-trace-sessions:/app/agent/sessions
     restart: unless-stopped
 
   frontend:
@@ -20,14 +20,14 @@ services:
     volumes:
       - ./frontend:/app
     environment:
-      - VITE_API_URL=http://vibe-trading:8899
+      - VITE_API_URL=http://deep-trace:8899
     command: sh -c "npm install && npm run dev -- --host --port 5899"
     profiles:
       - frontend
     depends_on:
-      vibe-trading:
+      deep-trace:
         condition: service_started
 
 volumes:
-  vibe-runs:
-  vibe-sessions:
+  deep-trace-runs:
+  deep-trace-sessions:
